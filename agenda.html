@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Glow Beauty | Agenda</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button>
+
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <h3>Olá, cliente</h3>
+        <a href="agenda.html" class="sidebar-link active">Agendar</a>
+        <a href="meus-agendamentos.html" class="sidebar-link">Meus agendamentos</a>
+        <a href="configuracao-conta.html" class="sidebar-link">Configuração da conta</a>
+      </aside>
+
+      <main class="dashboard">
+        <h1>Escolha sua data e horário</h1>
+      <p>Veja as disponibilidades da semana e selecione o melhor momento.</p>
+
+      <section class="calendar-card">
+        <div class="calendar-toolbar">
+          <h2>Disponibilidade</h2>
+          <div class="calendar-controls">
+            <label>
+              Mês
+              <select id="selectMesCliente"></select>
+            </label>
+            <label>
+              Ano
+              <select id="selectAnoCliente"></select>
+            </label>
+          </div>
+        </div>
+        <div class="calendar" id="calendar"></div>
+        <div class="time-slots" id="timeSlots"></div>
+        <button id="confirmarAgendamento" class="confirm-btn">Confirmar agendamento</button>
+        <div id="confirmacao" class="confirmacao"></div>
+      </section>
+
+        <div class="links-row">
+          <a href="profissional.html" class="back-link">Ver agendamentos</a>
+        </div>
+      </main>
+    </div>
+
+    <script src="agenda.js"></script>
+  </body>
+</html>

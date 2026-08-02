@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Glow Beauty | Meus agendamentos</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <h3>Olá, cliente</h3>
+        <a href="agenda.html" class="sidebar-link">Agendar</a>
+        <a href="meus-agendamentos.html" class="sidebar-link active">Meus agendamentos</a>
+        <a href="configuracao-conta.html" class="sidebar-link">Configuração da conta</a>
+      </aside>
+
+      <main class="dashboard">
+        <h1>Meus agendamentos</h1>
+        <p>Aqui ficam os agendamentos confirmados.</p>
+        <section class="calendar-card">
+          <div id="listaMeusAgendamentos" class="day-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="meus-agendamentos.js"></script>
+  </body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Glow Beauty | Agendamentos</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="dashboard">
+      <section class="calendar-card" id="loginProfissionalCard">
+        <h2>Acesso profissional</h2>
+        <form id="formLoginProfissional">
+          <input type="text" id="nomeProfissional" placeholder="Seu nome" required />
+          <input type="password" id="senhaProfissional" inputmode="numeric" pattern="\d{4}" maxlength="4" placeholder="Senha de 4 dígitos" required />
+          <button type="submit">Entrar</button>
+        </form>
+        <button type="button" class="secondary-btn" id="btnIrRegistroProfissional">Quero me cadastrar</button>
+        <p id="mensagemProfissional" class="mensagem"></p>
+      </section>
+
+      <section class="calendar-card hidden" id="registroProfissionalCard">
+        <h2>Cadastro profissional</h2>
+        <form id="formCadastroProfissional">
+          <input type="text" id="novoNomeProfissional" placeholder="Seu nome" required />
+          <input type="email" id="novoEmailProfissional" placeholder="E-mail" required />
+          <input type="password" id="novaSenhaProfissional" inputmode="numeric" pattern="\d{4}" maxlength="4" placeholder="Senha de 4 dígitos" required />
+          <button type="submit">Criar conta</button>
+        </form>
+        <button type="button" class="secondary-btn" id="btnVoltarLoginProfissional">Voltar ao login</button>
+        <p id="mensagemRegistroProfissional" class="mensagem"></p>
+      </section>
+
+      <div id="areaProfissional" class="hidden">
+        <h1>Agendamentos da profissional</h1>
+        <p>Veja os clientes confirmados para atendimento.</p>
+
+        <section class="calendar-card">
+          <div class="calendar-toolbar">
+            <h2 id="tituloDia">Calendário de agendamentos</h2>
+            <div class="calendar-controls">
+              <label>
+                Mês
+                <select id="selectMes"></select>
+              </label>
+              <label>
+                Ano
+                <select id="selectAno"></select>
+              </label>
+              <button type="button" class="secondary-btn" id="voltarCalendario" hidden>Voltar ao calendário</button>
+            </div>
+          </div>
+          <div class="calendar" id="calendarioProfissional"></div>
+          <div id="listaDia" class="day-list hidden"></div>
+        </section>
+
+        <div class="links-row">
+          <a href="configuracoes.html" class="back-link">Configurações</a>
+          <a href="#" id="voltarPaginaProfissional" class="back-link">Voltar</a>
+        </div>
+      </div>
+    </main>
+
+    <script src="profissional.js"></script>
+  </body>
+</html>

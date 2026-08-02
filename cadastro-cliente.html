@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Glow Beauty | Cadastro</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero-content">
+        <p class="badge">Manicure & Pedicure</p>
+        <h1>Crie sua conta de cliente</h1>
+        <p>Cadastre seu nome, telefone, e-mail e senha para reservar horários com facilidade.</p>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="form-section login-box">
+        <h2>Cadastro do cliente</h2>
+        <p class="section-subtitle">Preencha os dados abaixo para criar sua conta.</p>
+
+        <form id="formCadastroCliente">
+          <input type="text" id="novoNome" placeholder="Seu nome" required />
+          <input type="tel" id="novoTelefone" placeholder="Telefone" required />
+          <input type="email" id="novoEmail" placeholder="E-mail" required />
+          <input type="password" id="novaSenha" placeholder="Senha" required />
+          <button type="submit">Criar conta</button>
+        </form>
+
+        <div class="divider">ou</div>
+        <a href="index.html" class="secondary-link">Voltar para o login</a>
+        <p id="mensagem" class="mensagem"></p>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
