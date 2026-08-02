@@ -122,16 +122,47 @@ function mostrarAgendamentos(data, agendamentosDoDia) {
 
   const lista = agendamentosDoDia.length
     ? agendamentosDoDia.map((item) => `
-        <div class="day-item">
+        <div class="day-item" data-data="${item.data}" data-horario="${item.horario}" data-cliente="${item.cliente}">
           <strong>${item.cliente || 'Cliente'}</strong><br>
           Horário: ${item.horario}<br>
           Telefone: ${item.telefone || 'Não informado'}
+          <div class="links-row" style="margin-top:8px;">
+            <button class="slot-btn btn-selecionar">Selecionar</button>
+            <button class="reset-btn btn-cancelar">Cancelar</button>
+          </div>
         </div>`).join('')
     : '<p>Nenhum agendamento para este dia.</p>';
 
   listaDia.innerHTML = lista;
   tituloDia.textContent = `Agendamentos de ${new Date(`${data}T00:00:00`).toLocaleDateString('pt-BR')}`;
 }
+
+// Delegation: seleção e cancelamento de agendamentos (profissional)
+listaDia.addEventListener('click', (event) => {
+  const target = event.target;
+  const itemEl = target.closest('.day-item');
+  if (!itemEl) return;
+
+  const data = itemEl.dataset.data;
+  const horario = itemEl.dataset.horario;
+  const cliente = itemEl.dataset.cliente;
+
+  if (target.classList.contains('btn-selecionar')) {
+    document.querySelectorAll('#listaDia .day-item').forEach((el) => el.classList.remove('selected'));
+    itemEl.classList.add('selected');
+    // opcional: salvar seleção para navegação/ações
+    localStorage.setItem('reservaGlowBeauty', JSON.stringify({ data, horario }));
+  }
+
+  if (target.classList.contains('btn-cancelar')) {
+    const confirmar = window.confirm('Cancelar este agendamento?');
+    if (!confirmar) return;
+    const agendamentos = JSON.parse(localStorage.getItem('agendamentosGlowBeauty') || '[]');
+    const filtrados = agendamentos.filter((a) => !(a.data === data && a.horario === horario && a.cliente === cliente));
+    localStorage.setItem('agendamentosGlowBeauty', JSON.stringify(filtrados));
+    mostrarAgendamentos(data, filtrados.filter((i) => i.data === data));
+  }
+});
 
 function popularSeletores() {
   selectMes.innerHTML = meses.map((mes, index) => `<option value="${index}" ${index === mesSelecionado ? 'selected' : ''}>${mes}</option>`).join('');
