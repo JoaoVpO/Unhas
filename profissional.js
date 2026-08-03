@@ -13,7 +13,7 @@ const loginProfissionalCard = document.getElementById('loginProfissionalCard');
 const registroProfissionalCard = document.getElementById('registroProfissionalCard');
 const btnIrRegistroProfissional = document.getElementById('btnIrRegistroProfissional');
 const btnVoltarLoginProfissional = document.getElementById('btnVoltarLoginProfissional');
-const btnSairProfissional = document.getElementById('btnSairProfissional');
+const btnCancelarSelecionados = document.getElementById('btnCancelarSelecionados');
 
 let mesSelecionado = new Date().getMonth();
 let anoSelecionado = new Date().getFullYear();
@@ -104,37 +104,36 @@ function mostrarAgendamentos(data, agendamentosDoDia) {
 
   const lista = agendamentosDoDia.length
     ? agendamentosDoDia.map((item) => `
-        <div class="day-item" data-id="${item.id}">
-          <strong>${escapeHtml(item.cliente.nome || 'Cliente')}</strong><br>
-          Horário: ${escapeHtml(item.horario)}<br>
-          Telefone: ${escapeHtml(item.cliente.telefone || 'Não informado')}
-          <div class="links-row" style="margin-top:8px;">
-            <button type="button" class="reset-btn btn-cancelar">Cancelar</button>
-          </div>
-        </div>`).join('')
+        <label class="day-item">
+          <input type="checkbox" class="chk-agendamento" value="${item.id}" />
+          <span>
+            <strong>${escapeHtml(item.cliente.nome || 'Cliente')}</strong><br>
+            Horário: ${escapeHtml(item.horario)}<br>
+            Telefone: ${escapeHtml(item.cliente.telefone || 'Não informado')}
+          </span>
+        </label>`).join('')
     : '<p>Nenhum agendamento para este dia.</p>';
 
   listaDia.innerHTML = lista;
   tituloDia.textContent = `Agendamentos de ${formatarDataBR(data)}`;
 }
 
-listaDia.addEventListener('click', async (event) => {
-  const target = event.target;
-  const itemEl = target.closest('.day-item');
-  if (!itemEl) return;
+btnCancelarSelecionados?.addEventListener('click', async () => {
+  const ids = Array.from(document.querySelectorAll('.chk-agendamento:checked')).map((chk) => chk.value);
 
-  const id = itemEl.dataset.id;
+  if (!ids.length) {
+    window.alert('Selecione ao menos um agendamento para cancelar.');
+    return;
+  }
 
-  if (target.classList.contains('btn-cancelar')) {
-    const confirmar = window.confirm('Cancelar este agendamento?');
-    if (!confirmar) return;
+  const confirmar = window.confirm(`Cancelar ${ids.length} agendamento(s) selecionado(s)?`);
+  if (!confirmar) return;
 
-    try {
-      await apiFetch(`/agendamentos/${id}`, { method: 'DELETE' });
-      await carregarAgendamentos();
-    } catch (error) {
-      window.alert(error.message);
-    }
+  try {
+    await Promise.all(ids.map((id) => apiFetch(`/agendamentos/${id}`, { method: 'DELETE' })));
+    await carregarAgendamentos();
+  } catch (error) {
+    window.alert(error.message);
   }
 });
 
@@ -175,11 +174,6 @@ selectAno.addEventListener('change', (event) => {
 });
 
 voltarCalendario.addEventListener('click', mostrarCalendario);
-
-btnSairProfissional?.addEventListener('click', async () => {
-  await apiFetch('/profissionais/logout', { method: 'POST' }).catch(() => {});
-  mostrarLoginProfissional();
-});
 
 formLoginProfissional.addEventListener('submit', autenticarProfissional);
 formCadastroProfissional.addEventListener('submit', cadastrarProfissional);

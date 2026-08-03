@@ -2,6 +2,7 @@ const campoMensagem = document.getElementById('textoLembrete');
 const botaoSalvar = document.getElementById('salvarLembrete');
 const botaoLimparHistorico = document.getElementById('limparHistorico');
 const listaContatos = document.getElementById('listaContatos');
+const botaoSairProfissional = document.getElementById('btnSairProfissional');
 
 function carregarMensagem() {
   const mensagemSalva = localStorage.getItem('mensagemLembreteGlowBeauty');
@@ -41,6 +42,11 @@ botaoLimparHistorico?.addEventListener('click', () => {
   localStorage.removeItem('mensagemLembreteGlowBeauty');
   campoMensagem.value = '';
   window.alert('Dados locais limpos com sucesso!');
+});
+
+botaoSairProfissional?.addEventListener('click', async () => {
+  await apiFetch('/profissionais/logout', { method: 'POST' }).catch(() => {});
+  window.location.href = 'profissional.html';
 });
 
 async function iniciar() {

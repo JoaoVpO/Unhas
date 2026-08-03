@@ -303,10 +303,42 @@ input, select {
 }
 
 .day-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
   padding: 12px;
   border-radius: 10px;
   background: #34202a;
   border: 1px solid #5a3544;
+  cursor: pointer;
+}
+
+.chk-agendamento {
+  appearance: none;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  border: 2px solid #c56b8a;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+}
+
+.chk-agendamento:checked {
+  background: #a33f6b;
+  border-color: #a33f6b;
+}
+
+.chk-agendamento:checked::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 13px;
 }
 
 .calendar-toolbar {
