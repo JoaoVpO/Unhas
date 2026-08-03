@@ -1,35 +1,3 @@
-const horariosDisponiveisPadrao = ['08:00', '10:00', '14:00', '16:00', '18:00', '20:00'];
-
-function getClienteAtual() {
-  try {
-    return JSON.parse(localStorage.getItem('clienteGlowBeauty') || 'null');
-  } catch (error) {
-    return null;
-  }
-}
-
-function getHorariosDisponiveis(date) {
-  const agendamentos = JSON.parse(localStorage.getItem('agendamentosGlowBeauty') || '[]');
-  const horariosOcupados = agendamentos
-    .filter((item) => item.data === date)
-    .map((item) => item.horario);
-
-  return horariosDisponiveisPadrao.filter((horario) => !horariosOcupados.includes(horario));
-}
-
-function getPrimeiraDataComDisponibilidade(ano, mes) {
-  const totalDias = new Date(ano, mes + 1, 0).getDate();
-
-  for (let dia = 1; dia <= totalDias; dia += 1) {
-    const data = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-    if (getHorariosDisponiveis(data).length) {
-      return data;
-    }
-  }
-
-  return null;
-}
-
 const calendar = document.getElementById('calendar');
 const timeSlots = document.getElementById('timeSlots');
 const confirmacao = document.getElementById('confirmacao');
@@ -38,160 +6,76 @@ const menuToggle = document.getElementById('menuToggle');
 const sidebar = document.getElementById('sidebar');
 const selectMesCliente = document.getElementById('selectMesCliente');
 const selectAnoCliente = document.getElementById('selectAnoCliente');
-const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-const ANO_INICIAL = 2026;
-const ANO_FINAL = 2100;
+const saudacaoCliente = document.getElementById('saudacaoCliente');
+const btnSairCliente = document.getElementById('btnSairCliente');
+
 let mesSelecionado = new Date().getMonth();
 let anoSelecionado = new Date().getFullYear();
 let dataSelecionada = null;
+let horarioSelecionado = null;
+let disponibilidadeMes = {};
 
 menuToggle?.addEventListener('click', () => {
   sidebar?.classList.toggle('open');
 });
 
-function saveReserva(reserva) {
-  localStorage.setItem('reservaGlowBeauty', JSON.stringify(reserva));
+btnSairCliente?.addEventListener('click', async () => {
+  await apiFetch('/clientes/logout', { method: 'POST' }).catch(() => {});
+  window.location.href = 'index.html';
+});
 
-  const clienteAtual = getClienteAtual();
-  const agendamentos = JSON.parse(localStorage.getItem('agendamentosGlowBeauty') || '[]');
-  const novoAgendamento = {
-    ...reserva,
-    cliente: clienteAtual?.nome || 'Cliente',
-    telefone: clienteAtual?.telefone || ''
-  };
-
-  const jaExiste = agendamentos.some((item) => item.data === reserva.data && item.horario === reserva.horario);
-  if (!jaExiste) {
-    agendamentos.push(novoAgendamento);
-    localStorage.setItem('agendamentosGlowBeauty', JSON.stringify(agendamentos));
-  }
+function primeiraDataComSlots() {
+  const data = Object.keys(disponibilidadeMes).sort().find((d) => disponibilidadeMes[d].length > 0);
+  return data || null;
 }
 
-function getReserva() {
-  const reservaSalva = localStorage.getItem('reservaGlowBeauty');
-  return reservaSalva ? JSON.parse(reservaSalva) : null;
-}
-
-function popularSeletores() {
-  selectMesCliente.innerHTML = meses.map((mes, index) => `<option value="${index}" ${index === mesSelecionado ? 'selected' : ''}>${mes}</option>`).join('');
-
-  const anos = Array.from({ length: ANO_FINAL - ANO_INICIAL + 1 }, (_, index) => ANO_INICIAL + index);
-  selectAnoCliente.innerHTML = anos.map((ano) => `<option value="${ano}" ${ano === anoSelecionado ? 'selected' : ''}>${ano}</option>`).join('');
-}
-
-function getDateParaMesAtual() {
-  const dataDoMes = `${anoSelecionado}-${String(mesSelecionado + 1).padStart(2, '0')}`;
-  const dataSelecionadaNoMes = dataSelecionada && dataSelecionada.startsWith(dataDoMes) ? dataSelecionada : null;
-
-  if (dataSelecionadaNoMes) {
-    return dataSelecionadaNoMes;
-  }
-
-  return getPrimeiraDataComDisponibilidade(anoSelecionado, mesSelecionado) || null;
+async function carregarDisponibilidade() {
+  disponibilidadeMes = await apiFetch(`/agendamentos/disponibilidade?ano=${anoSelecionado}&mes=${mesSelecionado + 1}`);
 }
 
 function renderConfirmation() {
-  const reserva = getReserva();
-  if (!reserva) {
+  if (!dataSelecionada || !horarioSelecionado) {
     confirmacao.innerHTML = '';
     return;
   }
 
-  const dataFormatada = new Date(reserva.data + 'T00:00:00').toLocaleDateString('pt-BR');
   confirmacao.innerHTML = `
-    <p>Reserva escolhida para ${dataFormatada} às ${reserva.horario}.</p>
-    <button class="reset-btn" id="resetReserva">Cancelar seleção</button>
+    <p>Horário escolhido: ${formatarDataBR(dataSelecionada)} às ${horarioSelecionado}. Clique em "Confirmar agendamento" para reservar.</p>
+    <button type="button" class="reset-btn" id="resetReserva">Cancelar seleção</button>
   `;
 
   document.getElementById('resetReserva')?.addEventListener('click', () => {
-    localStorage.removeItem('reservaGlowBeauty');
-    dataSelecionada = null;
-    renderCalendar();
-    renderTimeSlots(getDateParaMesAtual());
+    horarioSelecionado = null;
+    renderTimeSlots(dataSelecionada);
     renderConfirmation();
   });
 }
 
 function renderCalendar() {
-  const firstDay = new Date(anoSelecionado, mesSelecionado, 1);
-  const lastDay = new Date(anoSelecionado, mesSelecionado + 1, 0);
-  const totalDays = lastDay.getDate();
-  const startWeekday = firstDay.getDay();
-  const reserva = getReserva();
-
-  calendar.innerHTML = '';
-
-  const cabecalho = document.createElement('div');
-  cabecalho.className = 'calendar-header';
-  cabecalho.textContent = `${meses[mesSelecionado]} ${anoSelecionado}`;
-  calendar.appendChild(cabecalho);
-
-  diasSemana.forEach((day) => {
-    const span = document.createElement('div');
-    span.className = 'weekday';
-    span.textContent = day;
-    calendar.appendChild(span);
+  renderizarCalendario(calendar, {
+    ano: anoSelecionado,
+    mes: mesSelecionado,
+    temDestaque: (data) => (disponibilidadeMes[data]?.length ?? 0) > 0,
+    estaAtivo: (data) => data === dataSelecionada,
+    aoClicarDia: (data) => {
+      dataSelecionada = data;
+      horarioSelecionado = null;
+      renderCalendar();
+      renderTimeSlots(data);
+      renderConfirmation();
+    }
   });
-
-  for (let i = 0; i < startWeekday; i += 1) {
-    const empty = document.createElement('div');
-    empty.className = 'day-btn empty-day';
-    calendar.appendChild(empty);
-  }
-
-  for (let day = 1; day <= totalDays; day += 1) {
-    const date = `${anoSelecionado}-${String(mesSelecionado + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const button = document.createElement('button');
-    button.className = 'day-btn';
-    button.textContent = day;
-    button.title = new Date(`${date}T00:00:00`).toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
-
-    if (getHorariosDisponiveis(date).length) {
-      button.classList.add('has-slots');
-    }
-
-    if ((reserva && reserva.data === date) || dataSelecionada === date) {
-      button.classList.add('active');
-    }
-
-    button.addEventListener('click', () => {
-      dataSelecionada = date;
-      document.querySelectorAll('#calendar .day-btn').forEach((btn) => btn.classList.remove('active'));
-      button.classList.add('active');
-      renderTimeSlots(date);
-    });
-
-    calendar.appendChild(button);
-  }
 }
 
-confirmarAgendamento?.addEventListener('click', () => {
-  const reserva = getReserva();
-  if (!reserva) {
-    confirmacao.innerHTML = '<p>Escolha primeiro uma data e um horário.</p>';
-    return;
-  }
-
-  const slotsAtuais = getHorariosDisponiveis(reserva.data);
-  if (!slotsAtuais.includes(reserva.horario)) {
-    confirmacao.innerHTML = '<p>Este horário já não está mais disponível.</p>';
-    return;
-  }
-
-  const dataFormatada = new Date(reserva.data + 'T00:00:00').toLocaleDateString('pt-BR');
-  confirmacao.innerHTML = `<p>Agendamento confirmado para ${dataFormatada} às ${reserva.horario}.</p>`;
-});
-
-function renderTimeSlots(date) {
+function renderTimeSlots(data) {
   timeSlots.innerHTML = '';
 
-  if (!date) {
+  if (!data) {
     timeSlots.innerHTML = '<p class="empty">Selecione um dia disponível no calendário.</p>';
     return;
   }
 
-  const slots = getHorariosDisponiveis(date);
+  const slots = disponibilidadeMes[data] || [];
 
   if (!slots.length) {
     timeSlots.innerHTML = '<p class="empty">Nenhum horário disponível nesta data.</p>';
@@ -199,64 +83,90 @@ function renderTimeSlots(date) {
   }
 
   const title = document.createElement('h3');
-  title.textContent = `Horários para ${new Date(date + 'T00:00:00').toLocaleDateString('pt-BR')}`;
+  title.textContent = `Horários para ${formatarDataBR(data)}`;
   timeSlots.appendChild(title);
-
-  const reserva = getReserva();
 
   slots.forEach((slot) => {
     const button = document.createElement('button');
+    button.type = 'button';
     button.className = 'slot-btn';
     button.textContent = slot;
 
-    if (reserva && reserva.data === date && reserva.horario === slot) {
+    if (dataSelecionada === data && horarioSelecionado === slot) {
       button.classList.add('selected');
     }
 
     button.addEventListener('click', () => {
-      const slotsAtuais = getHorariosDisponiveis(date);
-      if (!slotsAtuais.includes(slot)) {
-        confirmacao.innerHTML = '<p>Este horário já foi reservado. Escolha outro.</p>';
-        return;
-      }
-
-      const novaReserva = { data: date, horario: slot };
-      saveReserva(novaReserva);
-      renderCalendar();
-      renderTimeSlots(date);
+      horarioSelecionado = slot;
+      renderTimeSlots(data);
       renderConfirmation();
     });
     timeSlots.appendChild(button);
   });
 }
 
-selectMesCliente.addEventListener('change', (event) => {
-  mesSelecionado = Number(event.target.value);
-  renderCalendar();
-  renderTimeSlots(getDateParaMesAtual());
-});
-
-selectAnoCliente.addEventListener('change', (event) => {
-  anoSelecionado = Number(event.target.value);
-  renderCalendar();
-  renderTimeSlots(getDateParaMesAtual());
-});
-
-const clienteAtual = getClienteAtual();
-if (!clienteAtual?.nome) {
-  window.location.href = 'index.html';
-} else {
-  popularSeletores();
-  const reservaInicial = getReserva();
-  if (reservaInicial?.data) {
-    const [anoReserva, mesReserva] = reservaInicial.data.split('-');
-    mesSelecionado = Number(mesReserva) - 1;
-    anoSelecionado = Number(anoReserva);
-    dataSelecionada = reservaInicial.data;
-    popularSeletores();
+confirmarAgendamento?.addEventListener('click', async () => {
+  if (!dataSelecionada || !horarioSelecionado) {
+    confirmacao.innerHTML = '<p>Escolha primeiro uma data e um horário.</p>';
+    return;
   }
 
+  try {
+    await apiFetch('/agendamentos', { method: 'POST', body: { data: dataSelecionada, horario: horarioSelecionado } });
+    const dataConfirmada = dataSelecionada;
+    const horarioConfirmado = horarioSelecionado;
+    horarioSelecionado = null;
+    await carregarDisponibilidade();
+    renderCalendar();
+    renderTimeSlots(dataConfirmada);
+    confirmacao.innerHTML = `<p>Agendamento confirmado para ${formatarDataBR(dataConfirmada)} às ${horarioConfirmado}.</p>`;
+  } catch (error) {
+    await carregarDisponibilidade();
+    renderCalendar();
+    renderTimeSlots(dataSelecionada);
+    confirmacao.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
+  }
+});
+
+selectMesCliente?.addEventListener('change', async (event) => {
+  mesSelecionado = Number(event.target.value);
+  await carregarDisponibilidade();
+  dataSelecionada = primeiraDataComSlots();
+  horarioSelecionado = null;
   renderCalendar();
-  renderTimeSlots(getDateParaMesAtual());
+  renderTimeSlots(dataSelecionada);
+  renderConfirmation();
+});
+
+selectAnoCliente?.addEventListener('change', async (event) => {
+  anoSelecionado = Number(event.target.value);
+  await carregarDisponibilidade();
+  dataSelecionada = primeiraDataComSlots();
+  horarioSelecionado = null;
+  renderCalendar();
+  renderTimeSlots(dataSelecionada);
+  renderConfirmation();
+});
+
+async function iniciar() {
+  let cliente;
+  try {
+    cliente = await apiFetch('/clientes/me');
+  } catch (error) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  if (saudacaoCliente) {
+    saudacaoCliente.textContent = `Olá, ${cliente.nome.split(' ')[0]}`;
+  }
+
+  popularSeletoresMesAno(selectMesCliente, selectAnoCliente, mesSelecionado, anoSelecionado);
+  await carregarDisponibilidade();
+  dataSelecionada = primeiraDataComSlots();
+  renderCalendar();
+  renderTimeSlots(dataSelecionada);
   renderConfirmation();
 }
+
+iniciar();

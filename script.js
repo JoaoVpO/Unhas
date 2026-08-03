@@ -2,25 +2,13 @@ const formLogin = document.getElementById('formLogin');
 const formCadastroCliente = document.getElementById('formCadastroCliente');
 const mensagem = document.getElementById('mensagem');
 
-function getClienteAtual() {
-  try {
-    return JSON.parse(localStorage.getItem('clienteGlowBeauty') || 'null');
-  } catch (error) {
-    return null;
-  }
-}
-
-function limparReservaAtual() {
-  localStorage.removeItem('reservaGlowBeauty');
-}
-
 function mostrarMensagem(texto) {
   if (mensagem) {
     mensagem.textContent = texto;
   }
 }
 
-formCadastroCliente?.addEventListener('submit', (event) => {
+formCadastroCliente?.addEventListener('submit', async (event) => {
   event.preventDefault();
 
   const nome = document.getElementById('novoNome').value.trim();
@@ -38,42 +26,35 @@ formCadastroCliente?.addEventListener('submit', (event) => {
     return;
   }
 
-  const conta = { nome, telefone, email, senha };
-  localStorage.setItem('clienteGlowBeauty', JSON.stringify(conta));
-  limparReservaAtual();
-  localStorage.setItem('mensagemCliente', `Conta criada com sucesso para ${nome}! Agora você pode entrar.`);
-  window.location.href = 'index.html';
+  try {
+    await apiFetch('/clientes/registrar', { method: 'POST', body: { nome, telefone, email, senha } });
+    localStorage.setItem('mensagemCliente', `Conta criada com sucesso para ${nome}! Agora você pode entrar.`);
+    window.location.href = 'index.html';
+  } catch (error) {
+    mostrarMensagem(error.message);
+  }
 });
 
-formLogin?.addEventListener('submit', (event) => {
+formLogin?.addEventListener('submit', async (event) => {
   event.preventDefault();
 
-  const nome = document.getElementById('nomeLogin').value.trim();
+  const email = document.getElementById('emailLogin').value.trim();
   const senha = document.getElementById('senhaLogin').value;
 
-  if (!nome || !senha) {
-    mostrarMensagem('Preencha nome e senha para entrar.');
+  if (!email || !senha) {
+    mostrarMensagem('Preencha e-mail e senha para entrar.');
     return;
   }
 
-  const contaSalva = getClienteAtual();
-
-  if (!contaSalva) {
-    mostrarMensagem('Nenhuma conta encontrada. Crie uma conta primeiro.');
-    return;
+  try {
+    const cliente = await apiFetch('/clientes/login', { method: 'POST', body: { email, senha } });
+    mostrarMensagem(`Olá, ${cliente.nome}! Redirecionando para a página de agendamento...`);
+    window.setTimeout(() => {
+      window.location.href = 'agenda.html';
+    }, 400);
+  } catch (error) {
+    mostrarMensagem(error.message);
   }
-
-  if (contaSalva.nome !== nome || contaSalva.senha !== senha) {
-    mostrarMensagem('Nome ou senha incorretos.');
-    return;
-  }
-
-  localStorage.setItem('clienteGlowBeauty', JSON.stringify(contaSalva));
-  limparReservaAtual();
-  mostrarMensagem(`Olá, ${contaSalva.nome}! Redirecionando para a página de agendamento...`);
-  window.setTimeout(() => {
-    window.location.href = 'agenda.html';
-  }, 400);
 });
 
 if (mensagem && window.location.pathname.includes('index.html')) {

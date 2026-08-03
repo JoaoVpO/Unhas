@@ -18,10 +18,10 @@
     <main class="container">
       <section class="form-section login-box">
         <h2>Área do cliente</h2>
-        <p class="section-subtitle">Entre com seu nome e senha para acessar a agenda.</p>
+        <p class="section-subtitle">Entre com seu e-mail e senha para acessar a agenda.</p>
 
-        <form id="formLogin">
-          <input type="text" id="nomeLogin" placeholder="Seu nome" required />
+        <form id="formLogin" novalidate>
+          <input type="email" id="emailLogin" placeholder="Seu e-mail" required />
           <input type="password" id="senhaLogin" placeholder="Sua senha" required />
           <button type="submit">Entrar</button>
         </form>
@@ -32,6 +32,7 @@
       </section>
     </main>
 
+    <script src="common.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

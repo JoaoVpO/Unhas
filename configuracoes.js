@@ -10,33 +10,49 @@ function carregarMensagem() {
   }
 }
 
-function carregarContatos() {
-  const agendamentos = JSON.parse(localStorage.getItem('agendamentosGlowBeauty') || '[]');
-  const clientes = agendamentos.map((item) => item.cliente || 'Cliente');
-  const telefones = agendamentos.map((item) => item.telefone || 'Não informado');
+async function carregarContatos() {
+  const agendamentos = await apiFetch('/agendamentos');
 
   if (!agendamentos.length) {
     listaContatos.innerHTML = '<li>Nenhum contato registrado ainda.</li>';
     return;
   }
 
-  listaContatos.innerHTML = agendamentos
-    .map((item, index) => `<li>${clientes[index]} — ${telefones[index]}</li>`)
+  const contatosUnicos = new Map();
+  agendamentos.forEach((item) => {
+    const chave = `${item.cliente.nome}|${item.cliente.telefone}`;
+    contatosUnicos.set(chave, item.cliente);
+  });
+
+  listaContatos.innerHTML = Array.from(contatosUnicos.values())
+    .map((cliente) => `<li>${escapeHtml(cliente.nome || 'Cliente')} — ${escapeHtml(cliente.telefone || 'Não informado')}</li>`)
     .join('');
 }
 
 botaoSalvar?.addEventListener('click', () => {
   localStorage.setItem('mensagemLembreteGlowBeauty', campoMensagem.value);
-  alert('Mensagem salva com sucesso!');
+  window.alert('Mensagem salva com sucesso!');
 });
 
 botaoLimparHistorico?.addEventListener('click', () => {
-  const chaves = Object.keys(localStorage).filter((chave) => chave.includes('GlowBeauty') || chave.includes('cliente') || chave.includes('agendamento') || chave.includes('mensagem'));
-  chaves.forEach((chave) => localStorage.removeItem(chave));
-  carregarMensagem();
-  carregarContatos();
-  alert('Histórico limpo com sucesso!');
+  const confirmar = window.confirm('Isso vai limpar apenas os dados salvos neste navegador (mensagem de lembrete). Os agendamentos continuam salvos no sistema. Continuar?');
+  if (!confirmar) return;
+
+  localStorage.removeItem('mensagemLembreteGlowBeauty');
+  campoMensagem.value = '';
+  window.alert('Dados locais limpos com sucesso!');
 });
 
-carregarMensagem();
-carregarContatos();
+async function iniciar() {
+  try {
+    await apiFetch('/profissionais/me');
+  } catch (error) {
+    window.location.href = 'profissional.html';
+    return;
+  }
+
+  carregarMensagem();
+  await carregarContatos();
+}
+
+iniciar();

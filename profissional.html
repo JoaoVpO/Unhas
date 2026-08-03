@@ -10,8 +10,8 @@
     <main class="dashboard">
       <section class="calendar-card" id="loginProfissionalCard">
         <h2>Acesso profissional</h2>
-        <form id="formLoginProfissional">
-          <input type="text" id="nomeProfissional" placeholder="Seu nome" required />
+        <form id="formLoginProfissional" novalidate>
+          <input type="email" id="emailProfissional" placeholder="Seu e-mail" required />
           <input type="password" id="senhaProfissional" inputmode="numeric" pattern="\d{4}" maxlength="4" placeholder="Senha de 4 dígitos" required />
           <button type="submit">Entrar</button>
         </form>
@@ -21,7 +21,7 @@
 
       <section class="calendar-card hidden" id="registroProfissionalCard">
         <h2>Cadastro profissional</h2>
-        <form id="formCadastroProfissional">
+        <form id="formCadastroProfissional" novalidate>
           <input type="text" id="novoNomeProfissional" placeholder="Seu nome" required />
           <input type="email" id="novoEmailProfissional" placeholder="E-mail" required />
           <input type="password" id="novaSenhaProfissional" inputmode="numeric" pattern="\d{4}" maxlength="4" placeholder="Senha de 4 dígitos" required />
@@ -56,11 +56,12 @@
 
         <div class="links-row">
           <a href="configuracoes.html" class="back-link">Configurações</a>
-          <a href="#" id="voltarPaginaProfissional" class="back-link">Voltar</a>
+          <button type="button" id="btnSairProfissional" class="reset-btn">Sair</button>
         </div>
       </div>
     </main>
 
+    <script src="common.js"></script>
     <script src="profissional.js"></script>
   </body>
 </html>

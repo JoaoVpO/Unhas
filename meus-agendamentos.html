@@ -9,10 +9,11 @@
   <body>
     <div class="app-shell">
       <aside class="sidebar">
-        <h3>Olá, cliente</h3>
+        <h3 id="saudacaoCliente">Olá, cliente</h3>
         <a href="agenda.html" class="sidebar-link">Agendar</a>
         <a href="meus-agendamentos.html" class="sidebar-link active">Meus agendamentos</a>
         <a href="configuracao-conta.html" class="sidebar-link">Configuração da conta</a>
+        <button type="button" id="btnSairCliente" class="reset-btn">Sair</button>
       </aside>
 
       <main class="dashboard">
@@ -21,9 +22,14 @@
         <section class="calendar-card">
           <div id="listaMeusAgendamentos" class="day-list"></div>
         </section>
+
+        <div class="links-row">
+          <a href="agenda.html" class="back-link">← Voltar para agendamento</a>
+        </div>
       </main>
     </div>
 
+    <script src="common.js"></script>
     <script src="meus-agendamentos.js"></script>
   </body>
 </html>

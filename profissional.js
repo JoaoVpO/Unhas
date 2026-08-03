@@ -13,27 +13,23 @@ const loginProfissionalCard = document.getElementById('loginProfissionalCard');
 const registroProfissionalCard = document.getElementById('registroProfissionalCard');
 const btnIrRegistroProfissional = document.getElementById('btnIrRegistroProfissional');
 const btnVoltarLoginProfissional = document.getElementById('btnVoltarLoginProfissional');
-const voltarPaginaProfissional = document.getElementById('voltarPaginaProfissional');
-const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-const CHAVE_SESSAO_PROFISSIONAL = 'profissionalSessaoGlowBeauty';
+const btnSairProfissional = document.getElementById('btnSairProfissional');
+
 let mesSelecionado = new Date().getMonth();
 let anoSelecionado = new Date().getFullYear();
-const ANO_INICIAL = 2026;
-const ANO_FINAL = 2100;
+let agendamentosMes = {};
 
 function mostrarAreaProfissional() {
   areaProfissional.classList.remove('hidden');
   loginProfissionalCard.classList.add('hidden');
   registroProfissionalCard.classList.add('hidden');
-  localStorage.setItem(CHAVE_SESSAO_PROFISSIONAL, 'true');
+  carregarAgendamentos();
 }
 
 function mostrarLoginProfissional() {
   areaProfissional.classList.add('hidden');
   loginProfissionalCard.classList.remove('hidden');
   registroProfissionalCard.classList.add('hidden');
-  localStorage.removeItem(CHAVE_SESSAO_PROFISSIONAL);
 }
 
 function mostrarRegistroProfissional() {
@@ -42,14 +38,14 @@ function mostrarRegistroProfissional() {
   areaProfissional.classList.add('hidden');
 }
 
-function autenticarProfissional(event) {
+async function autenticarProfissional(event) {
   event.preventDefault();
 
-  const nome = document.getElementById('nomeProfissional').value.trim();
+  const email = document.getElementById('emailProfissional').value.trim();
   const senha = document.getElementById('senhaProfissional').value;
 
-  if (!nome) {
-    mensagemProfissional.textContent = 'Informe seu nome para entrar.';
+  if (!email) {
+    mensagemProfissional.textContent = 'Informe seu e-mail para entrar.';
     return;
   }
 
@@ -58,18 +54,16 @@ function autenticarProfissional(event) {
     return;
   }
 
-  const credenciaisSalvas = JSON.parse(localStorage.getItem('profissionalGlowBeauty') || 'null');
-  if (!credenciaisSalvas || credenciaisSalvas.nome !== nome || credenciaisSalvas.senha !== senha) {
-    mensagemProfissional.textContent = 'Nenhum profissional encontrado com esses dados.';
-    return;
+  try {
+    const profissional = await apiFetch('/profissionais/login', { method: 'POST', body: { email, senha } });
+    mensagemProfissional.textContent = `Bem-vindo, ${profissional.nome}!`;
+    mostrarAreaProfissional();
+  } catch (error) {
+    mensagemProfissional.textContent = error.message;
   }
-
-  mensagemProfissional.textContent = `Bem-vindo, ${nome}!`;
-  mostrarAreaProfissional();
-  carregarAgendamentos();
 }
 
-function cadastrarProfissional(event) {
+async function cadastrarProfissional(event) {
   event.preventDefault();
 
   const nome = document.getElementById('novoNomeProfissional').value.trim();
@@ -86,13 +80,13 @@ function cadastrarProfissional(event) {
     return;
   }
 
-  const conta = { nome, email, senha };
-  localStorage.setItem('profissionalGlowBeauty', JSON.stringify(conta));
-  mensagemRegistroProfissional.textContent = `Conta criada com sucesso para ${nome}!`;
-  document.getElementById('nomeProfissional').value = nome;
-  document.getElementById('senhaProfissional').value = senha;
-  mostrarAreaProfissional();
-  carregarAgendamentos();
+  try {
+    const profissional = await apiFetch('/profissionais/registrar', { method: 'POST', body: { nome, email, senha } });
+    mensagemRegistroProfissional.textContent = `Conta criada com sucesso para ${profissional.nome}!`;
+    mostrarAreaProfissional();
+  } catch (error) {
+    mensagemRegistroProfissional.textContent = error.message;
+  }
 }
 
 function mostrarCalendario() {
@@ -103,18 +97,6 @@ function mostrarCalendario() {
   listaDia.innerHTML = '<p>Selecione um dia no calendário.</p>';
 }
 
-function voltarParaVisualizacao() {
-  if (!listaDia.classList.contains('hidden')) {
-    mostrarCalendario();
-    return;
-  }
-
-  const confirmarSaida = window.confirm('Deseja voltar para a página de login?');
-  if (confirmarSaida) {
-    mostrarLoginProfissional();
-  }
-}
-
 function mostrarAgendamentos(data, agendamentosDoDia) {
   calendarioProfissional.classList.add('hidden');
   listaDia.classList.remove('hidden');
@@ -122,102 +104,64 @@ function mostrarAgendamentos(data, agendamentosDoDia) {
 
   const lista = agendamentosDoDia.length
     ? agendamentosDoDia.map((item) => `
-        <div class="day-item" data-data="${item.data}" data-horario="${item.horario}" data-cliente="${item.cliente}">
-          <strong>${item.cliente || 'Cliente'}</strong><br>
-          Horário: ${item.horario}<br>
-          Telefone: ${item.telefone || 'Não informado'}
+        <div class="day-item" data-id="${item.id}">
+          <strong>${escapeHtml(item.cliente.nome || 'Cliente')}</strong><br>
+          Horário: ${escapeHtml(item.horario)}<br>
+          Telefone: ${escapeHtml(item.cliente.telefone || 'Não informado')}
           <div class="links-row" style="margin-top:8px;">
-            <button class="slot-btn btn-selecionar">Selecionar</button>
-            <button class="reset-btn btn-cancelar">Cancelar</button>
+            <button type="button" class="reset-btn btn-cancelar">Cancelar</button>
           </div>
         </div>`).join('')
     : '<p>Nenhum agendamento para este dia.</p>';
 
   listaDia.innerHTML = lista;
-  tituloDia.textContent = `Agendamentos de ${new Date(`${data}T00:00:00`).toLocaleDateString('pt-BR')}`;
+  tituloDia.textContent = `Agendamentos de ${formatarDataBR(data)}`;
 }
 
-// Delegation: seleção e cancelamento de agendamentos (profissional)
-listaDia.addEventListener('click', (event) => {
+listaDia.addEventListener('click', async (event) => {
   const target = event.target;
   const itemEl = target.closest('.day-item');
   if (!itemEl) return;
 
-  const data = itemEl.dataset.data;
-  const horario = itemEl.dataset.horario;
-  const cliente = itemEl.dataset.cliente;
-
-  if (target.classList.contains('btn-selecionar')) {
-    document.querySelectorAll('#listaDia .day-item').forEach((el) => el.classList.remove('selected'));
-    itemEl.classList.add('selected');
-    // opcional: salvar seleção para navegação/ações
-    localStorage.setItem('reservaGlowBeauty', JSON.stringify({ data, horario }));
-  }
+  const id = itemEl.dataset.id;
 
   if (target.classList.contains('btn-cancelar')) {
     const confirmar = window.confirm('Cancelar este agendamento?');
     if (!confirmar) return;
-    const agendamentos = JSON.parse(localStorage.getItem('agendamentosGlowBeauty') || '[]');
-    const filtrados = agendamentos.filter((a) => !(a.data === data && a.horario === horario && a.cliente === cliente));
-    localStorage.setItem('agendamentosGlowBeauty', JSON.stringify(filtrados));
-    mostrarAgendamentos(data, filtrados.filter((i) => i.data === data));
+
+    try {
+      await apiFetch(`/agendamentos/${id}`, { method: 'DELETE' });
+      await carregarAgendamentos();
+    } catch (error) {
+      window.alert(error.message);
+    }
   }
 });
 
-function popularSeletores() {
-  selectMes.innerHTML = meses.map((mes, index) => `<option value="${index}" ${index === mesSelecionado ? 'selected' : ''}>${mes}</option>`).join('');
-
-  const anos = Array.from({ length: ANO_FINAL - ANO_INICIAL + 1 }, (_, index) => ANO_INICIAL + index);
-  selectAno.innerHTML = anos.map((ano) => `<option value="${ano}" ${ano === anoSelecionado ? 'selected' : ''}>${ano}</option>`).join('');
-}
-
-function carregarAgendamentos() {
-  const reservas = JSON.parse(localStorage.getItem('agendamentosGlowBeauty') || '[]');
-  const primeiroDia = new Date(anoSelecionado, mesSelecionado, 1);
-  const ultimoDia = new Date(anoSelecionado, mesSelecionado + 1, 0);
-  const totalDias = ultimoDia.getDate();
-  const inicio = primeiroDia.getDay();
-
+function carregarCalendario() {
   calendarioProfissional.innerHTML = '';
   mostrarCalendario();
 
-  const cabecalho = document.createElement('div');
-  cabecalho.className = 'calendar-header';
-  cabecalho.textContent = `${meses[mesSelecionado]} ${anoSelecionado}`;
-  calendarioProfissional.appendChild(cabecalho);
-
-  diasSemana.forEach((dia) => {
-    const span = document.createElement('div');
-    span.className = 'weekday';
-    span.textContent = dia;
-    calendarioProfissional.appendChild(span);
-  });
-
-  for (let i = 0; i < inicio; i += 1) {
-    const vazio = document.createElement('div');
-    vazio.className = 'day-btn empty-day';
-    calendarioProfissional.appendChild(vazio);
-  }
-
-  for (let dia = 1; dia <= totalDias; dia += 1) {
-    const data = `${anoSelecionado}-${String(mesSelecionado + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-    const botao = document.createElement('button');
-    botao.className = 'day-btn';
-    botao.textContent = dia;
-
-    const agendamentosDoDia = reservas.filter((item) => item.data === data);
-    if (agendamentosDoDia.length) {
-      botao.classList.add('has-slots');
-    }
-
-    botao.addEventListener('click', () => {
+  renderizarCalendario(calendarioProfissional, {
+    ano: anoSelecionado,
+    mes: mesSelecionado,
+    temDestaque: (data) => (agendamentosMes[data]?.length ?? 0) > 0,
+    aoClicarDia: (data, botao) => {
       document.querySelectorAll('#calendarioProfissional .day-btn').forEach((btn) => btn.classList.remove('active'));
       botao.classList.add('active');
-      mostrarAgendamentos(data, agendamentosDoDia);
-    });
+      mostrarAgendamentos(data, agendamentosMes[data] || []);
+    }
+  });
+}
 
-    calendarioProfissional.appendChild(botao);
-  }
+async function carregarAgendamentos() {
+  const lista = await apiFetch(`/agendamentos?ano=${anoSelecionado}&mes=${mesSelecionado + 1}`);
+  agendamentosMes = {};
+  lista.forEach((item) => {
+    if (!agendamentosMes[item.data]) agendamentosMes[item.data] = [];
+    agendamentosMes[item.data].push(item);
+  });
+  carregarCalendario();
 }
 
 selectMes.addEventListener('change', (event) => {
@@ -231,21 +175,26 @@ selectAno.addEventListener('change', (event) => {
 });
 
 voltarCalendario.addEventListener('click', mostrarCalendario);
-voltarPaginaProfissional?.addEventListener('click', (event) => {
-  event.preventDefault();
-  voltarParaVisualizacao();
+
+btnSairProfissional?.addEventListener('click', async () => {
+  await apiFetch('/profissionais/logout', { method: 'POST' }).catch(() => {});
+  mostrarLoginProfissional();
 });
+
 formLoginProfissional.addEventListener('submit', autenticarProfissional);
 formCadastroProfissional.addEventListener('submit', cadastrarProfissional);
 btnIrRegistroProfissional.addEventListener('click', mostrarRegistroProfissional);
 btnVoltarLoginProfissional.addEventListener('click', mostrarLoginProfissional);
-popularSeletores();
 
-const credenciaisSalvas = JSON.parse(localStorage.getItem('profissionalGlowBeauty') || 'null');
-const sessaoAtiva = localStorage.getItem(CHAVE_SESSAO_PROFISSIONAL);
-if (credenciaisSalvas && sessaoAtiva) {
-  mostrarAreaProfissional();
-  carregarAgendamentos();
-} else {
-  mostrarLoginProfissional();
+async function iniciar() {
+  popularSeletoresMesAno(selectMes, selectAno, mesSelecionado, anoSelecionado);
+
+  try {
+    await apiFetch('/profissionais/me');
+    mostrarAreaProfissional();
+  } catch (error) {
+    mostrarLoginProfissional();
+  }
 }
+
+iniciar();
