@@ -223,16 +223,16 @@ input, select {
   background: #fcecf2;
 }
 
+.day-btn.has-slots {
+  border: 1px solid #c56b8a;
+  background: #4b2c3a;
+}
+
 .day-btn.active {
   background: #7a3f58;
   color: #fff;
   border-color: #c56b8a;
   transform: scale(1.03);
-}
-
-.day-btn.has-slots {
-  border: 1px solid #c56b8a;
-  background: #4b2c3a;
 }
 
 .day-btn.empty-day {
