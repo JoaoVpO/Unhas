@@ -53,7 +53,9 @@ async function iniciar() {
   try {
     await apiFetch('/profissionais/me');
   } catch (error) {
-    window.location.href = 'profissional.html';
+    if (error.status === 401) {
+      window.location.href = 'profissional.html';
+    }
     return;
   }
 

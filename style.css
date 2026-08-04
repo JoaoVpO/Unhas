@@ -313,7 +313,7 @@ input, select {
   cursor: pointer;
 }
 
-.chk-agendamento {
+.bolinha-selecao {
   appearance: none;
   flex-shrink: 0;
   width: 22px;
@@ -325,12 +325,12 @@ input, select {
   position: relative;
 }
 
-.chk-agendamento:checked {
+.bolinha-selecao:checked {
   background: #a33f6b;
   border-color: #a33f6b;
 }
 
-.chk-agendamento:checked::after {
+.bolinha-selecao:checked::after {
   content: '✓';
   position: absolute;
   inset: 0;
@@ -339,6 +339,68 @@ input, select {
   justify-content: center;
   color: #fff;
   font-size: 13px;
+}
+
+.servico-grupo {
+  margin-bottom: 12px;
+}
+
+.servico-grupo-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid #5a3544;
+  border-radius: 10px;
+  background: #3a2630;
+  color: #f7e8ee;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.servico-grupo-header:hover {
+  background: #4b2c3a;
+}
+
+.servico-grupo-header.aberto {
+  background: #4b2c3a;
+  border-color: #c56b8a;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.servico-grupo-header::after {
+  content: '▾';
+  font-size: 0.85em;
+}
+
+.servico-grupo-header.aberto::after {
+  content: '▴';
+}
+
+.servico-lista {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #c56b8a;
+  border-top: none;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  background: #2c1b23;
+}
+
+.servico-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.servico-item:hover {
+  background: #34202a;
 }
 
 .calendar-toolbar {

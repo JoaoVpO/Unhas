@@ -8,15 +8,41 @@ const selectMesCliente = document.getElementById('selectMesCliente');
 const selectAnoCliente = document.getElementById('selectAnoCliente');
 const saudacaoCliente = document.getElementById('saudacaoCliente');
 const btnSairCliente = document.getElementById('btnSairCliente');
+const servicoEscolhido = document.getElementById('servicoEscolhido');
 
 let mesSelecionado = new Date().getMonth();
 let anoSelecionado = new Date().getFullYear();
 let dataSelecionada = null;
 let horarioSelecionado = null;
+let servicoSelecionado = null;
 let disponibilidadeMes = {};
 
 menuToggle?.addEventListener('click', () => {
   sidebar?.classList.toggle('open');
+});
+
+document.querySelectorAll('.servico-grupo-header').forEach((header) => {
+  header.addEventListener('click', () => {
+    const lista = header.nextElementSibling;
+    const jaAberto = header.classList.contains('aberto');
+
+    document.querySelectorAll('.servico-grupo-header').forEach((h) => {
+      h.classList.remove('aberto');
+      h.nextElementSibling.classList.add('hidden');
+    });
+
+    if (!jaAberto) {
+      header.classList.add('aberto');
+      lista.classList.remove('hidden');
+    }
+  });
+});
+
+document.querySelectorAll('input[name="servico"]').forEach((input) => {
+  input.addEventListener('change', () => {
+    servicoSelecionado = input.value;
+    servicoEscolhido.textContent = `Serviço escolhido: ${servicoSelecionado}`;
+  });
 });
 
 btnSairCliente?.addEventListener('click', async () => {
@@ -106,20 +132,29 @@ function renderTimeSlots(data) {
 }
 
 confirmarAgendamento?.addEventListener('click', async () => {
+  if (!servicoSelecionado) {
+    confirmacao.innerHTML = '<p>Escolha primeiro um serviço.</p>';
+    return;
+  }
+
   if (!dataSelecionada || !horarioSelecionado) {
     confirmacao.innerHTML = '<p>Escolha primeiro uma data e um horário.</p>';
     return;
   }
 
   try {
-    await apiFetch('/agendamentos', { method: 'POST', body: { data: dataSelecionada, horario: horarioSelecionado } });
+    await apiFetch('/agendamentos', { method: 'POST', body: { data: dataSelecionada, horario: horarioSelecionado, servico: servicoSelecionado } });
     const dataConfirmada = dataSelecionada;
     const horarioConfirmado = horarioSelecionado;
+    const servicoConfirmado = servicoSelecionado;
     horarioSelecionado = null;
+    servicoSelecionado = null;
+    document.querySelectorAll('input[name="servico"]').forEach((input) => { input.checked = false; });
+    servicoEscolhido.textContent = '';
     await carregarDisponibilidade();
     renderCalendar();
     renderTimeSlots(dataConfirmada);
-    confirmacao.innerHTML = `<p>Agendamento confirmado para ${formatarDataBR(dataConfirmada)} às ${horarioConfirmado}.</p>`;
+    confirmacao.innerHTML = `<p>Agendamento confirmado para ${formatarDataBR(dataConfirmada)} às ${horarioConfirmado} (${escapeHtml(servicoConfirmado)}).</p>`;
   } catch (error) {
     await carregarDisponibilidade();
     renderCalendar();
@@ -153,7 +188,9 @@ async function iniciar() {
   try {
     cliente = await apiFetch('/clientes/me');
   } catch (error) {
-    window.location.href = 'index.html';
+    if (error.status === 401) {
+      window.location.href = 'index.html';
+    }
     return;
   }
 

@@ -40,6 +40,7 @@ async function main() {
       cliente_id INT NOT NULL,
       data DATE NOT NULL,
       horario VARCHAR(5) NOT NULL,
+      servico VARCHAR(60) NOT NULL DEFAULT '',
       status VARCHAR(20) NOT NULL DEFAULT 'confirmado',
       criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       CONSTRAINT fk_agendamentos_cliente FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE,

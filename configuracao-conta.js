@@ -12,7 +12,9 @@ async function iniciar() {
   try {
     cliente = await apiFetch('/clientes/me');
   } catch (error) {
-    window.location.href = 'index.html';
+    if (error.status === 401) {
+      window.location.href = 'index.html';
+    }
     return;
   }
 

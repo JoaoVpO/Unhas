@@ -105,10 +105,11 @@ function mostrarAgendamentos(data, agendamentosDoDia) {
   const lista = agendamentosDoDia.length
     ? agendamentosDoDia.map((item) => `
         <label class="day-item">
-          <input type="checkbox" class="chk-agendamento" value="${item.id}" />
+          <input type="checkbox" class="bolinha-selecao" value="${item.id}" />
           <span>
             <strong>${escapeHtml(item.cliente.nome || 'Cliente')}</strong><br>
             Horário: ${escapeHtml(item.horario)}<br>
+            Serviço: ${escapeHtml(item.servico || 'Não informado')}<br>
             Telefone: ${escapeHtml(item.cliente.telefone || 'Não informado')}
           </span>
         </label>`).join('')
@@ -119,7 +120,7 @@ function mostrarAgendamentos(data, agendamentosDoDia) {
 }
 
 btnCancelarSelecionados?.addEventListener('click', async () => {
-  const ids = Array.from(document.querySelectorAll('.chk-agendamento:checked')).map((chk) => chk.value);
+  const ids = Array.from(document.querySelectorAll('.bolinha-selecao:checked')).map((chk) => chk.value);
 
   if (!ids.length) {
     window.alert('Selecione ao menos um agendamento para cancelar.');
@@ -184,6 +185,18 @@ async function iniciar() {
   popularSeletoresMesAno(selectMes, selectAno, mesSelecionado, anoSelecionado);
 
   try {
+    await apiFetch('/profissionais/me');
+    mostrarAreaProfissional();
+    return;
+  } catch (error) {
+    if (error.status === 401) {
+      mostrarLoginProfissional();
+      return;
+    }
+  }
+
+  try {
+    await new Promise((resolve) => window.setTimeout(resolve, 800));
     await apiFetch('/profissionais/me');
     mostrarAreaProfissional();
   } catch (error) {

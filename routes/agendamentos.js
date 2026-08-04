@@ -1,7 +1,7 @@
 const express = require('express');
 const pool = require('../db');
 const { autenticar, autenticarQualquer } = require('../middleware/auth');
-const { HORARIOS_PADRAO } = require('../config');
+const { HORARIOS_PADRAO, SERVICOS_VALIDOS } = require('../config');
 
 const router = express.Router();
 const DATA_REGEX = /^\d{4}-\d{2}-\d{2}$/;
@@ -46,9 +46,13 @@ router.get('/disponibilidade', async (req, res) => {
 router.post('/', autenticar('cliente'), async (req, res) => {
   const data = String(req.body.data || '');
   const horario = String(req.body.horario || '');
+  const servico = String(req.body.servico || '');
 
   if (!DATA_REGEX.test(data) || !HORARIOS_PADRAO.includes(horario)) {
     return res.status(400).json({ erro: 'Data ou horário inválido.' });
+  }
+  if (!SERVICOS_VALIDOS.includes(servico)) {
+    return res.status(400).json({ erro: 'Escolha um serviço válido.' });
   }
 
   const hoje = new Date();
@@ -60,10 +64,10 @@ router.post('/', autenticar('cliente'), async (req, res) => {
 
   try {
     const [resultado] = await pool.query(
-      'INSERT INTO agendamentos (cliente_id, data, horario) VALUES (?, ?, ?)',
-      [req.usuario.id, data, horario]
+      'INSERT INTO agendamentos (cliente_id, data, horario, servico) VALUES (?, ?, ?, ?)',
+      [req.usuario.id, data, horario, servico]
     );
-    return res.status(201).json({ id: resultado.insertId, data, horario, status: 'confirmado' });
+    return res.status(201).json({ id: resultado.insertId, data, horario, servico, status: 'confirmado' });
   } catch (error) {
     if (error.code === 'ER_DUP_ENTRY') {
       return res.status(409).json({ erro: 'Este horário acabou de ser reservado por outra pessoa.' });
@@ -75,7 +79,7 @@ router.post('/', autenticar('cliente'), async (req, res) => {
 
 router.get('/minhas', autenticar('cliente'), async (req, res) => {
   const [linhas] = await pool.query(
-    "SELECT id, DATE_FORMAT(data, '%Y-%m-%d') AS data, horario, status FROM agendamentos WHERE cliente_id = ? ORDER BY data, horario",
+    "SELECT id, DATE_FORMAT(data, '%Y-%m-%d') AS data, horario, servico, status FROM agendamentos WHERE cliente_id = ? ORDER BY data, horario",
     [req.usuario.id]
   );
   res.json(linhas.map((item) => ({ ...item, horario: item.horario.slice(0, 5) })));
@@ -95,7 +99,7 @@ router.get('/', autenticar('profissional'), async (req, res) => {
   }
 
   const [linhas] = await pool.query(
-    `SELECT a.id, DATE_FORMAT(a.data, '%Y-%m-%d') AS data, a.horario, a.status,
+    `SELECT a.id, DATE_FORMAT(a.data, '%Y-%m-%d') AS data, a.horario, a.servico, a.status,
             c.nome AS cliente_nome, c.telefone AS cliente_telefone
      FROM agendamentos a
      JOIN clientes c ON c.id = a.cliente_id
@@ -108,6 +112,7 @@ router.get('/', autenticar('profissional'), async (req, res) => {
     id: item.id,
     data: item.data,
     horario: item.horario.slice(0, 5),
+    servico: item.servico,
     status: item.status,
     cliente: { nome: item.cliente_nome, telefone: item.cliente_telefone }
   })));

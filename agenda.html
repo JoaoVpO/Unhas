@@ -23,6 +23,40 @@
       <p>Veja as disponibilidades da semana e selecione o melhor momento.</p>
 
       <section class="calendar-card">
+        <h2>Escolha o serviço</h2>
+        <p class="section-subtitle">Selecione o serviço desejado antes de confirmar o agendamento.</p>
+
+        <div class="servico-grupo">
+          <button type="button" class="servico-grupo-header">Cuidados Básicos</button>
+          <div class="servico-lista hidden">
+            <label class="servico-item"><input type="radio" name="servico" class="bolinha-selecao" value="Cutilagem" /> Cutilagem</label>
+            <label class="servico-item"><input type="radio" name="servico" class="bolinha-selecao" value="Corte e Lixamento" /> Corte e Lixamento</label>
+            <label class="servico-item"><input type="radio" name="servico" class="bolinha-selecao" value="Esmaltação tradicional" /> Esmaltação tradicional</label>
+          </div>
+        </div>
+
+        <div class="servico-grupo">
+          <button type="button" class="servico-grupo-header">Técnicas e Esmaltações Especiais</button>
+          <div class="servico-lista hidden">
+            <label class="servico-item"><input type="radio" name="servico" class="bolinha-selecao" value="Esmaltação em gel" /> Esmaltação em gel</label>
+            <label class="servico-item"><input type="radio" name="servico" class="bolinha-selecao" value="Blindagem" /> Blindagem</label>
+            <label class="servico-item"><input type="radio" name="servico" class="bolinha-selecao" value="Spa das Mãos" /> Spa das Mãos</label>
+          </div>
+        </div>
+
+        <div class="servico-grupo">
+          <button type="button" class="servico-grupo-header">Alongamento e Decoração</button>
+          <div class="servico-lista hidden">
+            <label class="servico-item"><input type="radio" name="servico" class="bolinha-selecao" value="Alongamento de Unhas" /> Alongamento de Unhas</label>
+            <label class="servico-item"><input type="radio" name="servico" class="bolinha-selecao" value="Manutenção e Conserto" /> Manutenção e Conserto</label>
+            <label class="servico-item"><input type="radio" name="servico" class="bolinha-selecao" value="Nail Art" /> Nail Art</label>
+          </div>
+        </div>
+
+        <p id="servicoEscolhido" class="mensagem"></p>
+      </section>
+
+      <section class="calendar-card">
         <div class="calendar-toolbar">
           <h2>Disponibilidade</h2>
           <div class="calendar-controls">
