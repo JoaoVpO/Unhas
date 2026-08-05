@@ -7,6 +7,7 @@ const path = require('path');
 const clientesRouter = require('./routes/clientes');
 const profissionaisRouter = require('./routes/profissionais');
 const agendamentosRouter = require('./routes/agendamentos');
+const backupRouter = require('./routes/backup');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +19,7 @@ app.use(cookieParser());
 app.use('/api/clientes', clientesRouter);
 app.use('/api/profissionais', profissionaisRouter);
 app.use('/api/agendamentos', agendamentosRouter);
+app.use('/api/backup', backupRouter);
 
 app.use(express.static(path.join(__dirname)));
 
