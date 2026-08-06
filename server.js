@@ -9,6 +9,7 @@ const profissionaisRouter = require('./routes/profissionais');
 const agendamentosRouter = require('./routes/agendamentos');
 const backupRouter = require('./routes/backup');
 const relatorioRouter = require('./routes/relatorio');
+const despesasRouter = require('./routes/despesas');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +23,7 @@ app.use('/api/profissionais', profissionaisRouter);
 app.use('/api/agendamentos', agendamentosRouter);
 app.use('/api/backup', backupRouter);
 app.use('/api/relatorio', relatorioRouter);
+app.use('/api/despesas', despesasRouter);
 
 app.use(express.static(path.join(__dirname)));
 

@@ -19,9 +19,23 @@ const PRECOS_SERVICOS = {
   'Nail Art': 0
 };
 
+// Preencha a duração (em minutos) de cada serviço. Ficam em 0 até serem definidos.
+const DURACAO_SERVICOS_MINUTOS = {
+  'Cutilagem': 0,
+  'Corte e Lixamento': 0,
+  'Esmaltação tradicional': 0,
+  'Esmaltação em gel': 0,
+  'Blindagem': 0,
+  'Spa das Mãos': 0,
+  'Alongamento de Unhas': 0,
+  'Manutenção e Conserto': 0,
+  'Nail Art': 0
+};
+
 module.exports = {
   HORARIOS_PADRAO: ['08:00', '10:00', '14:00', '16:00', '18:00', '20:00'],
   SERVICOS,
   SERVICOS_VALIDOS,
-  PRECOS_SERVICOS
+  PRECOS_SERVICOS,
+  DURACAO_SERVICOS_MINUTOS
 };

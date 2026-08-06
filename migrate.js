@@ -14,6 +14,7 @@ async function main() {
   console.log('Conectado ao banco. Aplicando schema...');
 
   await conn.query(`
+    DROP TABLE IF EXISTS despesas;
     DROP TABLE IF EXISTS agendamentos;
     DROP TABLE IF EXISTS clientes;
     DROP TABLE IF EXISTS profissionais;
@@ -46,9 +47,19 @@ async function main() {
       CONSTRAINT fk_agendamentos_cliente FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE,
       CONSTRAINT uniq_data_horario UNIQUE (data, horario)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+    CREATE TABLE despesas (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      profissional_id INT NOT NULL,
+      descricao VARCHAR(120) NOT NULL,
+      valor DECIMAL(10,2) NOT NULL,
+      data DATE NOT NULL,
+      criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT fk_despesas_profissional FOREIGN KEY (profissional_id) REFERENCES profissionais(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
   `);
 
-  console.log('Schema aplicado com sucesso: clientes, profissionais, agendamentos.');
+  console.log('Schema aplicado com sucesso: clientes, profissionais, agendamentos, despesas.');
   console.log('(A tabela "servicos" foi mantida como estava, sem uso no momento.)');
 
   await conn.end();

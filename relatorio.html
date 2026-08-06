@@ -42,6 +42,14 @@
               <span class="relatorio-valor" id="valorReceita">R$ 0,00</span>
             </div>
             <div class="relatorio-card">
+              <span class="relatorio-label">Despesas</span>
+              <span class="relatorio-valor" id="valorDespesas">R$ 0,00</span>
+            </div>
+            <div class="relatorio-card">
+              <span class="relatorio-label">Lucro</span>
+              <span class="relatorio-valor" id="valorLucro">R$ 0,00</span>
+            </div>
+            <div class="relatorio-card">
               <span class="relatorio-label">Atendimentos</span>
               <span class="relatorio-valor" id="valorAtendimentos">0</span>
             </div>
@@ -53,12 +61,30 @@
               <span class="relatorio-label">Dias trabalhados</span>
               <span class="relatorio-valor" id="valorDias">0</span>
             </div>
+            <div class="relatorio-card">
+              <span class="relatorio-label">Horas atendidas</span>
+              <span class="relatorio-valor" id="valorHoras">0:00</span>
+            </div>
           </div>
+
+          <button type="button" id="btnCompartilharRelatorio" class="secondary-btn">Compartilhar resumo</button>
         </section>
 
         <section class="calendar-card">
           <h2>Receita por serviço</h2>
           <ul id="listaReceitaServicos" class="contact-list"></ul>
+        </section>
+
+        <section class="calendar-card">
+          <h2>Despesas</h2>
+          <form id="formDespesa" novalidate>
+            <input type="text" id="descricaoDespesa" placeholder="Descrição (ex: Esmalte, aluguel)" required />
+            <input type="number" id="valorDespesaInput" placeholder="Valor (R$)" step="0.01" min="0.01" required />
+            <input type="date" id="dataDespesa" required />
+            <button type="submit">Adicionar despesa</button>
+          </form>
+          <p id="mensagemDespesa" class="mensagem"></p>
+          <ul id="listaDespesas" class="contact-list"></ul>
         </section>
       </main>
     </div>

@@ -1,7 +1,7 @@
 const express = require('express');
 const pool = require('../db');
 const { autenticar } = require('../middleware/auth');
-const { PRECOS_SERVICOS } = require('../config');
+const { PRECOS_SERVICOS, DURACAO_SERVICOS_MINUTOS } = require('../config');
 
 const router = express.Router();
 
@@ -20,8 +20,13 @@ router.get('/', autenticar('profissional'), async (req, res) => {
   const inicio = `${ano}-${String(mes).padStart(2, '0')}-01`;
   const fim = `${ano}-${String(mes).padStart(2, '0')}-${String(ultimoDiaDoMes(ano, mes)).padStart(2, '0')}`;
 
-  const [linhas] = await pool.query(
+  const [agendamentos] = await pool.query(
     "SELECT DATE_FORMAT(data, '%Y-%m-%d') AS data, servico, cliente_id FROM agendamentos WHERE data BETWEEN ? AND ?",
+    [inicio, fim]
+  );
+
+  const [despesas] = await pool.query(
+    'SELECT valor FROM despesas WHERE data BETWEEN ? AND ?',
     [inicio, fim]
   );
 
@@ -29,20 +34,27 @@ router.get('/', autenticar('profissional'), async (req, res) => {
   const clientesUnicos = new Set();
   const diasTrabalhados = new Set();
   let receitaTotal = 0;
+  let minutosAtendidos = 0;
 
-  linhas.forEach((item) => {
+  agendamentos.forEach((item) => {
     const preco = PRECOS_SERVICOS[item.servico] || 0;
     receitaPorServico[item.servico] = (receitaPorServico[item.servico] || 0) + preco;
     receitaTotal += preco;
+    minutosAtendidos += DURACAO_SERVICOS_MINUTOS[item.servico] || 0;
     clientesUnicos.add(item.cliente_id);
     diasTrabalhados.add(item.data);
   });
 
+  const despesaTotal = despesas.reduce((soma, item) => soma + Number(item.valor), 0);
+
   res.json({
     receitaTotal,
-    totalAtendimentos: linhas.length,
+    despesaTotal,
+    lucro: receitaTotal - despesaTotal,
+    totalAtendimentos: agendamentos.length,
     clientesAtendidos: clientesUnicos.size,
     diasTrabalhados: diasTrabalhados.size,
+    minutosAtendidos,
     receitaPorServico
   });
 });
