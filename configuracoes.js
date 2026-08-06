@@ -3,6 +3,12 @@ const botaoSalvar = document.getElementById('salvarLembrete');
 const botaoLimparHistorico = document.getElementById('limparHistorico');
 const listaContatos = document.getElementById('listaContatos');
 const botaoSairProfissional = document.getElementById('btnSairProfissional');
+const menuToggle = document.getElementById('menuToggle');
+const sidebar = document.getElementById('sidebar');
+
+menuToggle?.addEventListener('click', () => {
+  sidebar?.classList.toggle('open');
+});
 
 function carregarMensagem() {
   const mensagemSalva = localStorage.getItem('mensagemLembreteGlowBeauty');

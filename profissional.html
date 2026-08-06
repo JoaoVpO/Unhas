@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <main class="dashboard">
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button>
+
+    <main class="dashboard" id="areaLoginProfissional">
       <section class="calendar-card" id="loginProfissionalCard">
         <h2>Acesso profissional</h2>
         <form id="formLoginProfissional" novalidate>
@@ -30,8 +32,17 @@
         <button type="button" class="secondary-btn" id="btnVoltarLoginProfissional">Voltar ao login</button>
         <p id="mensagemRegistroProfissional" class="mensagem"></p>
       </section>
+    </main>
 
-      <div id="areaProfissional" class="hidden">
+    <div class="app-shell hidden" id="areaProfissional">
+      <aside class="sidebar" id="sidebar">
+        <h3>Olá, profissional</h3>
+        <a href="profissional.html" class="sidebar-link active">Agendamentos</a>
+        <a href="relatorio.html" class="sidebar-link">Relatório</a>
+        <a href="configuracoes.html" class="sidebar-link">Configurações</a>
+      </aside>
+
+      <main class="dashboard">
         <h1>Agendamentos da profissional</h1>
         <p>Veja os clientes confirmados para atendimento.</p>
 
@@ -55,11 +66,10 @@
         </section>
 
         <div class="links-row">
-          <a href="configuracoes.html" class="back-link">Configurações</a>
           <button type="button" id="btnCancelarSelecionados" class="reset-btn">Cancelar</button>
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
 
     <script src="common.js"></script>
     <script src="profissional.js"></script>

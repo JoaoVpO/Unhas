@@ -7,33 +7,43 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <main class="dashboard">
-      <h1>Configurações de lembretes</h1>
-      <p>Gerencie as mensagens automáticas para os clientes.</p>
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button>
 
-      <section class="calendar-card">
-        <h2>Mensagem padrão</h2>
-        <textarea id="textoLembrete" rows="4">Olá! Lembrete de seu agendamento com a profissional. Não esqueça de comparecer.</textarea>
-        <button id="salvarLembrete">Salvar mensagem</button>
-        <button id="limparHistorico" class="reset-btn">Limpar histórico</button>
-      </section>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <h3>Olá, profissional</h3>
+        <a href="profissional.html" class="sidebar-link">Agendamentos</a>
+        <a href="relatorio.html" class="sidebar-link">Relatório</a>
+        <a href="configuracoes.html" class="sidebar-link active">Configurações</a>
+      </aside>
 
-      <section class="calendar-card">
-        <h2>Contatos para lembrete</h2>
-        <ul id="listaContatos" class="contact-list"></ul>
-      </section>
+      <main class="dashboard">
+        <h1>Configurações de lembretes</h1>
+        <p>Gerencie as mensagens automáticas para os clientes.</p>
 
-      <section class="calendar-card">
-        <h2>Backup dos dados</h2>
-        <p class="section-subtitle">Baixe uma cópia de todos os clientes, profissionais e agendamentos em um arquivo. Guarde em local seguro (ex: Google Drive).</p>
-        <a href="/api/backup" class="back-link" download>Baixar backup agora</a>
-      </section>
+        <section class="calendar-card">
+          <h2>Mensagem padrão</h2>
+          <textarea id="textoLembrete" rows="4">Olá! Lembrete de seu agendamento com a profissional. Não esqueça de comparecer.</textarea>
+          <button id="salvarLembrete">Salvar mensagem</button>
+          <button id="limparHistorico" class="reset-btn">Limpar histórico</button>
+        </section>
 
-      <div class="links-row">
-        <a href="profissional.html" class="back-link">Voltar aos agendamentos</a>
-        <button type="button" id="btnSairProfissional" class="reset-btn">Sair</button>
-      </div>
-    </main>
+        <section class="calendar-card">
+          <h2>Contatos para lembrete</h2>
+          <ul id="listaContatos" class="contact-list"></ul>
+        </section>
+
+        <section class="calendar-card">
+          <h2>Backup dos dados</h2>
+          <p class="section-subtitle">Baixe uma cópia de todos os clientes, profissionais e agendamentos em um arquivo. Guarde em local seguro (ex: Google Drive).</p>
+          <a href="/api/backup" class="back-link" download>Baixar backup agora</a>
+        </section>
+
+        <div class="links-row">
+          <button type="button" id="btnSairProfissional" class="reset-btn">Sair</button>
+        </div>
+      </main>
+    </div>
 
     <script src="common.js"></script>
     <script src="configuracoes.js"></script>

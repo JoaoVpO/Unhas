@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Glow Beauty | Relatório</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button>
+
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <h3>Olá, profissional</h3>
+        <a href="profissional.html" class="sidebar-link">Agendamentos</a>
+        <a href="relatorio.html" class="sidebar-link active">Relatório</a>
+        <a href="configuracoes.html" class="sidebar-link">Configurações</a>
+      </aside>
+
+      <main class="dashboard">
+        <h1>Relatório financeiro</h1>
+        <p>Resumo do período selecionado.</p>
+
+        <section class="calendar-card">
+          <div class="calendar-toolbar">
+            <h2>Período</h2>
+            <div class="calendar-controls">
+              <label>
+                Mês
+                <select id="selectMesRelatorio"></select>
+              </label>
+              <label>
+                Ano
+                <select id="selectAnoRelatorio"></select>
+              </label>
+            </div>
+          </div>
+
+          <div class="relatorio-resumo">
+            <div class="relatorio-card">
+              <span class="relatorio-label">Receita</span>
+              <span class="relatorio-valor" id="valorReceita">R$ 0,00</span>
+            </div>
+            <div class="relatorio-card">
+              <span class="relatorio-label">Atendimentos</span>
+              <span class="relatorio-valor" id="valorAtendimentos">0</span>
+            </div>
+            <div class="relatorio-card">
+              <span class="relatorio-label">Clientes atendidos</span>
+              <span class="relatorio-valor" id="valorClientes">0</span>
+            </div>
+            <div class="relatorio-card">
+              <span class="relatorio-label">Dias trabalhados</span>
+              <span class="relatorio-valor" id="valorDias">0</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="calendar-card">
+          <h2>Receita por serviço</h2>
+          <ul id="listaReceitaServicos" class="contact-list"></ul>
+        </section>
+      </main>
+    </div>
+
+    <script src="common.js"></script>
+    <script src="relatorio.js"></script>
+  </body>
+</html>

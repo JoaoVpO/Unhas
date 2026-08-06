@@ -9,33 +9,41 @@ const formCadastroProfissional = document.getElementById('formCadastroProfission
 const mensagemProfissional = document.getElementById('mensagemProfissional');
 const mensagemRegistroProfissional = document.getElementById('mensagemRegistroProfissional');
 const areaProfissional = document.getElementById('areaProfissional');
+const areaLoginProfissional = document.getElementById('areaLoginProfissional');
 const loginProfissionalCard = document.getElementById('loginProfissionalCard');
 const registroProfissionalCard = document.getElementById('registroProfissionalCard');
 const btnIrRegistroProfissional = document.getElementById('btnIrRegistroProfissional');
 const btnVoltarLoginProfissional = document.getElementById('btnVoltarLoginProfissional');
 const btnCancelarSelecionados = document.getElementById('btnCancelarSelecionados');
+const menuToggle = document.getElementById('menuToggle');
+const sidebar = document.getElementById('sidebar');
 
 let mesSelecionado = new Date().getMonth();
 let anoSelecionado = new Date().getFullYear();
 let agendamentosMes = {};
 
+menuToggle?.addEventListener('click', () => {
+  sidebar?.classList.toggle('open');
+});
+
 function mostrarAreaProfissional() {
   areaProfissional.classList.remove('hidden');
-  loginProfissionalCard.classList.add('hidden');
-  registroProfissionalCard.classList.add('hidden');
+  areaLoginProfissional.classList.add('hidden');
   carregarAgendamentos();
 }
 
 function mostrarLoginProfissional() {
   areaProfissional.classList.add('hidden');
+  areaLoginProfissional.classList.remove('hidden');
   loginProfissionalCard.classList.remove('hidden');
   registroProfissionalCard.classList.add('hidden');
 }
 
 function mostrarRegistroProfissional() {
+  areaProfissional.classList.add('hidden');
+  areaLoginProfissional.classList.remove('hidden');
   loginProfissionalCard.classList.add('hidden');
   registroProfissionalCard.classList.remove('hidden');
-  areaProfissional.classList.add('hidden');
 }
 
 async function autenticarProfissional(event) {

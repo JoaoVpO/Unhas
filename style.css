@@ -403,6 +403,33 @@ input, select {
   background: #34202a;
 }
 
+.relatorio-resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.relatorio-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #3a2630;
+  border: 1px solid #5a3544;
+}
+
+.relatorio-label {
+  font-size: 0.85rem;
+  color: #f3c5d6;
+}
+
+.relatorio-valor {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
 .calendar-toolbar {
   display: flex;
   justify-content: space-between;
